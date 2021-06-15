@@ -178,7 +178,7 @@ class Preprocessor:
         ].astype(np.float32)
 
         # Read raw text
-        with open(text_path, "r") as f:
+        with open(text_path, "r", encoding="utf-8") as f:
             raw_text = f.readline().strip("\n")
 
         # Compute fundamental frequency
