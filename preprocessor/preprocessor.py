@@ -63,6 +63,9 @@ class Preprocessor:
         energy_scaler = StandardScaler()
 
         # Compute pitch, energy, duration, and mel-spectrogram
+        print("self.in_dir", self.in_dir)
+        print("self.out_dir", self.out_dir)
+
         speakers = {}
         for i, speaker in enumerate(tqdm(os.listdir(self.in_dir))):
             speakers[speaker] = i

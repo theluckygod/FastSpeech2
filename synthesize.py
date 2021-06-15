@@ -8,6 +8,7 @@ import numpy as np
 from torch.utils.data import DataLoader
 from g2p_en import G2p
 from pypinyin import pinyin, Style
+from viphoneme import vi2IPA_split
 
 from utils.model import get_model, get_vocoder
 from utils.tools import to_device, synth_samples
@@ -41,6 +42,33 @@ def preprocess_english(text, preprocess_config):
             phones += lexicon[w.lower()]
         else:
             phones += list(filter(lambda p: p != " ", g2p(w)))
+    phones = "{" + "}{".join(phones) + "}"
+    phones = re.sub(r"\{[^\w\s]?\}", "{sp}", phones)
+    phones = phones.replace("}{", " ")
+
+    print("Raw Text Sequence: {}".format(text))
+    print("Phoneme Sequence: {}".format(phones))
+    sequence = np.array(
+        text_to_sequence(
+            phones, preprocess_config["preprocessing"]["text"]["text_cleaners"]
+        )
+    )
+
+    return np.array(sequence)
+
+def preprocess_vietnamese(text, preprocess_config):
+    text = text.rstrip(punctuation)
+    lexicon = read_lexicon(preprocess_config["path"]["lexicon_path"])
+
+    delimit = "/"
+    g2p = vi2IPA_split
+    phones = []
+    words = re.split(r"([,;.\-\?\!\s+])", text)
+    for w in words:
+        if w.lower() in lexicon:
+            phones += lexicon[w.lower()]
+        else:
+            phones += list(filter(lambda p: p != "", g2p(w, delimit)[:-9].split("/")))
     phones = "{" + "}{".join(phones) + "}"
     phones = re.sub(r"\{[^\w\s]?\}", "{sp}", phones)
     phones = phones.replace("}{", " ")
@@ -206,6 +234,8 @@ if __name__ == "__main__":
             texts = np.array([preprocess_english(args.text, preprocess_config)])
         elif preprocess_config["preprocessing"]["text"]["language"] == "zh":
             texts = np.array([preprocess_mandarin(args.text, preprocess_config)])
+        elif preprocess_config["preprocessing"]["text"]["language"] == "vi":
+            texts = np.array([preprocess_vietnamese(args.text, preprocess_config)])
         text_lens = np.array([len(texts[0])])
         batchs = [(ids, raw_texts, speakers, texts, text_lens, max(text_lens))]
 
