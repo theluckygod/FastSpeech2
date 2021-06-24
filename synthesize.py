@@ -13,7 +13,7 @@ from viphoneme import vi2IPA_split
 from utils.model import get_model, get_vocoder
 from utils.tools import to_device, synth_samples
 from dataset import TextDataset
-from text import text_to_sequence
+from text import text_to_sequence, my_viphoneme
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -60,15 +60,14 @@ def preprocess_vietnamese(text, preprocess_config):
     text = text.rstrip(punctuation)
     lexicon = read_lexicon(preprocess_config["path"]["lexicon_path"])
 
-    delimit = "/"
-    g2p = vi2IPA_split
+    g2p = my_viphoneme.get_cleaned_viphoneme_list
     phones = []
     words = re.split(r"([,;.\-\?\!\s+])", text)
     for w in words:
         if w.lower() in lexicon:
             phones += lexicon[w.lower()]
         else:
-            phones += list(filter(lambda p: p != "", g2p(w, delimit)[:-9].split("/")))
+            phones += list(filter(lambda p: p != "", g2p(w)))
     phones = "{" + "}{".join(phones) + "}"
     phones = re.sub(r"\{[^\w\s]?\}", "{sp}", phones)
     phones = phones.replace("}{", " ")

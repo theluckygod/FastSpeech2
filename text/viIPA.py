@@ -1,3 +1,3 @@
-from viphoneme import syms
+from text import my_viphoneme
 
-valid_symbols = syms
+valid_symbols = my_viphoneme.get_all_syms()
