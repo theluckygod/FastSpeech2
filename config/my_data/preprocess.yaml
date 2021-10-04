@@ -1,9 +1,9 @@
 dataset: "my_data"
 
 path:
-  corpus_path: "../my_data"
+  corpus_path: "../../vivos"
   lexicon_path: "lexicon/my_data-lexicon.txt"
-  raw_path: "../my_data/train"
+  raw_path: "../../my_data_prep"
   preprocessed_path: "./preprocessed_data/my_data"
 
 preprocessing:
@@ -13,7 +13,7 @@ preprocessing:
     language: "vi"
   audio:
     sampling_rate: 16000
-    max_wav_value: 32768.0
+    max_wav_value: 32767.0
   stft:
     filter_length: 1024
     hop_length: 256

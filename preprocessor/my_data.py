@@ -14,32 +14,43 @@ def prepare_align(config):
     sampling_rate = config["preprocessing"]["audio"]["sampling_rate"]
     max_wav_value = config["preprocessing"]["audio"]["max_wav_value"]
     cleaners = config["preprocessing"]["text"]["text_cleaners"]
-    for speaker in tqdm(os.listdir(in_dir)):
-        for chapter in os.listdir(os.path.join(in_dir, speaker)):
-            for file_name in os.listdir(os.path.join(in_dir, speaker, chapter)):
-                if file_name[-4:] != ".wav":
-                    continue
-                base_name = file_name[:-4]
-                text_path = os.path.join(
-                    in_dir, speaker, chapter, "{}.normalized.txt".format(base_name)
-                )
-                wav_path = os.path.join(
-                    in_dir, speaker, chapter, "{}.wav".format(base_name)
-                )
-                with open(text_path) as f:
-                    text = f.readline().strip("\n")
-                text = _clean_text(text, cleaners)
 
-                os.makedirs(os.path.join(out_dir, speaker), exist_ok=True)
-                wav, _ = librosa.load(wav_path, sampling_rate)
-                wav = wav / max(abs(wav)) * max_wav_value
-                wavfile.write(
-                    os.path.join(out_dir, speaker, "{}.wav".format(base_name)),
-                    sampling_rate,
-                    wav.astype(np.int16),
-                )
-                with open(
-                    os.path.join(out_dir, speaker, "{}.lab".format(base_name)),
-                    "w",
-                ) as f1:
-                    f1.write(text)
+    # prepare audio
+    speaker_dirs = []
+    for set in os.listdir(in_dir):
+        set_path = os.path.join(in_dir, set)
+        if not os.path.isdir(set_path):
+            continue
+        for speaker in os.listdir(os.path.join(set_path, "waves")):
+            speaker_dirs.append(os.path.join(set_path, "waves", speaker))
+
+    for speaker_dir in tqdm(speaker_dirs):
+        speaker = os.path.basename(speaker_dir)
+        os.makedirs(os.path.join(out_dir, speaker), exist_ok=True)
+        for file_name in os.listdir(speaker_dir):
+            wav_path = os.path.join(speaker_dir, file_name)
+            wav, _ = librosa.load(wav_path, sampling_rate)
+            wav = wav / max(abs(wav)) * max_wav_value
+            wavfile.write(
+                os.path.join(out_dir, speaker, file_name),
+                sampling_rate,
+                wav.astype(np.int16),
+            )
+
+    # prepare text
+    for set in os.listdir(in_dir):
+        set_path = os.path.join(in_dir, set)
+        if not os.path.isdir(set_path):
+            continue
+
+        text_path = os.path.join(set_path, "prompts.txt")
+        with open(text_path, encoding="utf8") as f:
+            for text in f:
+                text = text.strip("\n")
+                file_name = text.split(" ")[0]
+                label = " ".join(text.split(" ")[1:])
+                label = _clean_text(label, cleaners)
+
+                speaker = file_name.split("_")[0]
+                with open(os.path.join(out_dir, speaker, f"{file_name}.lab"), "w", encoding='utf-8') as f1:
+                    f1.write(label)

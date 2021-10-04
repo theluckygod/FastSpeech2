@@ -17,6 +17,6 @@ eng-to-ipa
 prosodic
 vinorm
 viphoneme
-torch == 1.7.0
+torch
 tqdm==4.46.1
 unidecode == 1.1.1
