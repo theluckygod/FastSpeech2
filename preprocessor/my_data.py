@@ -4,6 +4,7 @@ import librosa
 import numpy as np
 from scipy.io import wavfile
 from tqdm import tqdm
+import logging
 
 from text import _clean_text
 
@@ -29,13 +30,21 @@ def prepare_align(config):
         os.makedirs(os.path.join(out_dir, speaker), exist_ok=True)
         for file_name in os.listdir(speaker_dir):
             wav_path = os.path.join(speaker_dir, file_name)
-            wav, _ = librosa.load(wav_path, sampling_rate)
+            try:
+                wav, _ = librosa.load(wav_path, sampling_rate)
+            except:
+                logging.warn(f"Audio {wav_path} can not read!")
+                continue
             wav = wav / max(abs(wav)) * max_wav_value
-            wavfile.write(
-                os.path.join(out_dir, speaker, file_name),
-                sampling_rate,
-                wav.astype(np.int16),
-            )
+            try:
+                wavfile.write(
+                    os.path.join(out_dir, speaker, file_name),
+                    sampling_rate,
+                    wav.astype(np.int16),
+                )
+            except:
+                logging.warn(f"Audio {os.path.join(out_dir, speaker, file_name)} can not write!")
+                continue
 
     # prepare text
     for set in os.listdir(in_dir):
@@ -52,5 +61,8 @@ def prepare_align(config):
                 label = _clean_text(label, cleaners)
 
                 speaker = file_name.split("_")[0]
-                with open(os.path.join(out_dir, speaker, f"{file_name}.lab"), "w", encoding='utf-8') as f1:
-                    f1.write(label)
+                if os.path.isfile(os.path.join(out_dir, speaker, f"{file_name}.wav")):
+                    with open(os.path.join(out_dir, speaker, f"{file_name}.lab"), "w", encoding='utf-8') as f1:
+                        f1.write(label)
+                else:
+                    logging.warn(f"Audio {os.path.join(out_dir, speaker, f'{file_name}.wav')} was not found!")
