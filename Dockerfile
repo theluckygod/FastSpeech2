@@ -12,6 +12,7 @@ RUN python3 -m pip install --upgrade pip && \
     pip install viphoneme && \
     pip install llvmlite --ignore-installed && \
     python3 -m pip install -r /tmp/requirements.txt
+RUN pip install -U numpy
 
 COPY . /Fastspeech2
 WORKDIR /Fastspeech2

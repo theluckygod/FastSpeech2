@@ -1,3 +1,9 @@
+path:
+  vocoder_path: 
+    universal: "hifigan/generator_universal.pth.tar"
+    LJSpeech: "hifigan/generator_LJSpeech.pth.tar"
+    custom: "hifigan/generator_my_data.pth.tar"
+
 transformer:
   encoder_layer: 4
   encoder_head: 2
@@ -34,4 +40,4 @@ max_seq_len: 1000
 
 vocoder:
   model: "HiFi-GAN" # support 'HiFi-GAN', 'MelGAN'
-  speaker: "universal" # support  'LJSpeech', 'universal'
+  speaker: "universal" # support  'LJSpeech', 'universal', 'custom'

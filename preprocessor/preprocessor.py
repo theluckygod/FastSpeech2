@@ -1,6 +1,7 @@
 import os
 import random
 import json
+import logging
 
 import tgt
 import librosa
@@ -63,9 +64,9 @@ class Preprocessor:
         energy_scaler = StandardScaler()
 
         # Compute pitch, energy, duration, and mel-spectrogram
-        print("self.in_dir", self.in_dir)
-        print("self.out_dir", self.out_dir)
-
+        logging.info("in_dir:", self.in_dir)
+        logging.info("out_dir:", self.out_dir)
+        
         speakers = {}
         for i, speaker in enumerate(tqdm(os.listdir(self.in_dir))):
             speakers[speaker] = i
@@ -77,13 +78,14 @@ class Preprocessor:
                 tg_path = os.path.join(
                     self.out_dir, "TextGrid", speaker, "{}.TextGrid".format(basename)
                 )
-                if os.path.exists(tg_path):
-                    ret = self.process_utterance(speaker, basename)
-                    if ret is None:
-                        continue
-                    else:
-                        info, pitch, energy, n = ret
-                    out.append(info)
+
+                assert os.path.exists(tg_path), f"{tg_path} not found!!!"
+                ret = self.process_utterance(speaker, basename)
+                if ret is None:
+                    continue
+                else:
+                    info, pitch, energy, n = ret
+                out.append(info)
 
                 if len(pitch) > 0:
                     pitch_scaler.partial_fit(pitch.reshape((-1, 1)))

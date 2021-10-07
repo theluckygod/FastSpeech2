@@ -185,6 +185,24 @@ if __name__ == "__main__":
     parser.add_argument(
         "-t", "--train_config", type=str, required=True, help="path to train.yaml"
     )
+    parser.add_argument(
+        "-d", "--data_path", type=str, required=False, help="path to preprocessed data"
+    )
+    parser.add_argument(
+        "-l", "--lexicon_path", type=str, required=False, help="path to lexicon"
+    )
+    parser.add_argument(
+        "-c", "--ckpt_path", type=str, required=False, help="path to ckpt"
+    )
+    parser.add_argument(
+        "-g", "--log_path", type=str, required=False, help="path to log"
+    )
+    parser.add_argument(
+        "-r", "--result_path", type=str, required=False, help="path to result"
+    )
+    parser.add_argument(
+        "-v", "--vocoder_path", type=str, required=False, help="path to vocoder (Only Hifi-GAN)"
+    )
     args = parser.parse_args()
 
     # Read Config
@@ -193,6 +211,19 @@ if __name__ == "__main__":
     )
     model_config = yaml.load(open(args.model_config, "r"), Loader=yaml.FullLoader)
     train_config = yaml.load(open(args.train_config, "r"), Loader=yaml.FullLoader)
+    if args.data_path is not None:
+        preprocess_config["path"]["data_path"] = args.data_path
+    if args.lexicon_path is not None:
+        preprocess_config["path"]["lexicon_path"] = args.lexicon_path
+    if args.ckpt_path is not None:
+        train_config["path"]["ckpt_path"] = args.ckpt_path
+    if args.log_path is not None:
+        train_config["path"]["log_path"] = args.log_path
+    if args.result_path is not None:
+        train_config["path"]["result_path"] = args.result_path
+    if args.vocoder_path is not None:
+        model_config["path"]["vocoder_path"]["custom"] = args.vocoder_path
+        model_config["vocoder"]["model"] = "HiFi-GAN"
     configs = (preprocess_config, model_config, train_config)
 
     main(args, configs)
