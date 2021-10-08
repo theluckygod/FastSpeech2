@@ -212,7 +212,7 @@ if __name__ == "__main__":
     model_config = yaml.load(open(args.model_config, "r"), Loader=yaml.FullLoader)
     train_config = yaml.load(open(args.train_config, "r"), Loader=yaml.FullLoader)
     if args.data_path is not None:
-        preprocess_config["path"]["data_path"] = args.data_path
+        preprocess_config["path"]["preprocessed_path"] = args.data_path
     if args.lexicon_path is not None:
         preprocess_config["path"]["lexicon_path"] = args.lexicon_path
     if args.ckpt_path is not None:
