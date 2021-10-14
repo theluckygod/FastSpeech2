@@ -60,7 +60,8 @@ def preprocess_vietnamese(text, preprocess_config):
     text = text.rstrip(punctuation)
     lexicon = read_lexicon(preprocess_config["path"]["lexicon_path"])
 
-    g2p = my_viphoneme.get_cleaned_viphoneme_list
+    g2p = lambda s: my_viphoneme.get_my_viphoneme_list(my_viphoneme.get_cleaned_viphoneme_list(s))
+
     phones = []
     words = re.split(r"([,;.\-\?\!\s+])", text)
     for w in words:
