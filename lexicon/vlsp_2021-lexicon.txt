@@ -80,7 +80,6 @@ ao	a1 w
 ào	a2 w
 ảo	a4 w
 ạo	a6 w
-aỏn	a1 n
 áp	a5 p
 ap	a5 p
 app	a5 p
@@ -383,7 +382,7 @@ bụ	b u6
 bứ	b ɯ5
 bự	b ɯ6
 bua	b uə1
-buá	bw ʷa5
+buá	b uə5
 búa	b uə5
 bùa	b uə2
 bủa	b uə4
@@ -904,7 +903,7 @@ chuyền	cw ʷiə2 n
 chuyển	cw ʷiə4 n
 chuyện	cw ʷiə6 n
 co	k ɔ1
-covid k o1 v i5 t
+covid	k o1 v i5 t
 cos	k o5 t
 có	k ɔ5
 cò	k ɔ2
@@ -2630,7 +2629,7 @@ khít	x i5 t
 khịt	x i6 t
 khiu	x i1 w
 khíu	x i5 w
-khmer	x ɤ2 m ɛ1
+khmer	x ɤ1 m ɛ1
 kho	x ɔ1
 khó	x ɔ5
 khò	x ɔ2
@@ -3492,7 +3491,7 @@ mũ	m u3
 mủ	m u4
 mụ	m u6
 mua	m uə1
-muá	mw ʷa5
+muá	m uə5
 múa	m uə5
 mùa	m uə2
 mưa	m ɯə1
@@ -5337,7 +5336,7 @@ sít	ʂ i5 t
 sịt	ʂ i6 t
 siu	ʂ i1 w
 so	ʂ ɔ1
-sofa	ʂ ɔ1 f a1
+sofa	ʂ o1 f a1
 sò	ʂ ɔ2
 sô	ʂ o1
 số	ʂ o5
@@ -5380,7 +5379,6 @@ sổi	ʂ o4 j
 sới	ʂ ɤ5 j
 sởi	ʂ ɤ4 j
 sợi	ʂ ɤ6 j
-sol	s a5 l
 sóm	ʂ ɔ5 m
 sòm	ʂ ɔ2 m
 sơm	ʂ ɤ1 m
@@ -6703,7 +6701,6 @@ vời	v ɤ2 j
 vội	v o6 j
 vợi	v ɤ6 j
 vòm	v ɔ2 m
-vòmg	v m g
 von	v ɔ1 n
 vón	v ɔ5 n
 vòn	v ɔ2 n
