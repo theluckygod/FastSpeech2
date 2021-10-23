@@ -1,6 +1,7 @@
 import argparse
 import os
 
+import numpy as np
 import torch
 import yaml
 import torch.nn as nn
@@ -72,6 +73,7 @@ def main(args, configs):
     outer_bar.n = args.restore_step
     outer_bar.update()
 
+    count = 0
     while True:
         inner_bar = tqdm(total=len(loader), desc="Epoch {}".format(epoch), position=1)
         for batchs in loader:
@@ -79,7 +81,13 @@ def main(args, configs):
                 batch = to_device(batch, device)
 
                 # Forward
-                output = model(*(batch[2:]))
+                try:
+                    output = model(*(batch[2:]))
+                except:
+                    count += 1
+                    print(f"Bug in runtime: {batch[0]}")
+                    print("Count", count)
+                    continue
 
                 # Cal Loss
                 losses = Loss(batch, output)

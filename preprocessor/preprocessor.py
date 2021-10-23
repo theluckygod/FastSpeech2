@@ -144,6 +144,7 @@ class Preprocessor:
             )
         )
 
+        random.seed(1234)
         random.shuffle(out)
         out = [r for r in out if r is not None]
 
