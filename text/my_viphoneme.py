@@ -2,7 +2,11 @@ from viphoneme import vi2IPA_split
 
 consonants = ['tʰw', 'ŋ͡m', 'k͡p', 'cw', 'jw', 'bw', 'vw', 'ʈw', 'ʂw', 'fw', 'tʰ', 'tʃ', 'xw', 'ŋw', 'dw', 'ɣw', 'zw', 'mw', 'hw', 'lw', 'kw', 'nw', 't∫', 'ɲw', 'sw', 'tw', 'ʐw', 'dʒ', 'ɲ', 'θ', 'l', 'w', 'd', '∫', 'p', 'ɣ', '!', 'ð', 'ʧ', 'ʒ', 'ʐ', 'z', 'v', 'g', '_', 'ʤ', '.', 'b', 'h', 'n', 'ʂ', 'k', 'm', ' ', 'c', 'j', 'x', 'ʈ', ',', 's', 'ŋ', 'ʃ', '?', 'r', ':', 'η', 'f', ';', 't', "'"]
 vowels = ['oʊ', 'ɯəj', 'ɤ̆j', 'ʷiə', 'ɤ̆w', 'ɯəw', 'ʷet', 'iəw', 'uəj', 'ʷen', 'ʷɤ̆', 'ʷiu', 'kwi', 'uə', 'eə', 'oj', 'ʷi', 'ăw', 'aʊ', 'ɛu', 'ɔɪ', 'ʷɤ', 'ɤ̆', 'ʊə', 'zi', 'ʷă', 'eɪ', 'aɪ', 'ew', 'iə', 'ɯj', 'ʷɛ', 'ɯw', 'ɤj', 'ɔ:', 'əʊ', 'ʷa', 'ɑ:', 'ɔj', 'uj', 'ɪə', 'ăj', 'u:', 'aw', 'ɛj', 'iw', 'aj', 'ɜ:', 'eo', 'iɛ', 'ʷe', 'i:', 'ɯə', 'ʌ', 'ɪ', 'ɯ', 'ə', 'u', 'o', 'ă', 'æ', 'ɤ', 'i', 'ɒ', 'ɔ', 'ɛ', 'ʊ', 'a', 'e']
+custom_vowels = ['iu']
+custom_vowels2 = ['wɤ̆', 'wiu', 'wɤ', 'wă', 'wɛ', 'wa', 'we', 'wiə', 'wi']
 tones = ['1', '3', '6', '2', '5', '4']
+
+vowels = vowels + custom_vowels + custom_vowels2
 
 def _is_concat_2_vowels(v1, v2):
     if v1 + v2 in vowels:

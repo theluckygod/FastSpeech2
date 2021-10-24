@@ -2,7 +2,7 @@
 import re
 from text import cleaners
 from text.symbols import symbols
-
+import logging
 
 # Mappings from symbol to numeric ID and vice versa:
 _symbol_to_id = {s: i for i, s in enumerate(symbols)}
@@ -64,7 +64,14 @@ def _clean_text(text, cleaner_names):
 
 
 def _symbols_to_sequence(symbols):
-    return [_symbol_to_id[s] for s in symbols if _should_keep_symbol(s)]
+    res = []
+    for s in symbols:
+        if _should_keep_symbol(s):
+            res.append(_symbol_to_id[s])
+        else:
+            res.append(_symbol_to_id["@sil"])
+            logging.warning(f"Not found {s} in symbols")
+    return res
 
 
 def _arpabet_to_sequence(text):
