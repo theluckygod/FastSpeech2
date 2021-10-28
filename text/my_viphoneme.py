@@ -5,6 +5,7 @@ vowels = ['oʊ', 'ɯəj', 'ɤ̆j', 'ʷiə', 'ɤ̆w', 'ɯəw', 'ʷet', 'iəw', 'u
 en_to_vi = {'p': ['p'], 'b': ['b'], 't': ['t'], 'd': ['d'], 't∫': [u'tʃ'], 'ʧ': ['c'], 'dʒ': ['c'], 'ʤ': ['c'], 'k': ['k'], 'g': ['ɣ'], 'f': ['f'], 'v': ['v'], 'ð': ['d'], 'θ': ['tʰ'], 's': ['s'], 'z': ['j'], '∫': ['ʂ'], 'ʃ': ['ʂ'], 'ʒ': ['z'], 'm': ['m'], 'n': ['n'], 'η': ['ŋ'], 'l': ['l'], 'r': ['ʐ'], 'w': ['kw'], 'j': ['j'], 'ɪ': ['i1'], 'i:': ['i1'], 'ʊ': ['ɯə5', 'k'], 'u:': ['u'], 'e': ['ɛ'], 'ə': ['ɤ'], 'ɜ:': ['ɤ'], 'ɒ': ['ɔ'], 'ɔ:': ['o'], 'æ': ['a'], 'ʌ': ['ɤ̆1'], 'ɑ:': ['ɔ'], 'ɪə': ['iə'], 'ʊə': ['uə'], 'eə': ['ɛ'], 'eɪ': ['ă', 'j'], 'ɔɪ': ['o', 'j'], 'aɪ': ['a', 'j'], 'oʊ': ['ɤ̆', 'w'], 'aʊ': ['a', 'w']}
 onglides = ['ʷa', 'ʷa', 'ʷa', 'ʷa', 'ʷa', 'ʷa', 'ʷa', 'ʷa', 'ʷa', 'ʷa', 'ʷa', 'ʷă', 'ʷă', 'ʷă', 'ʷă', 'ʷă', 'ʷă', 'ʷɛ', 'ʷɛ', 'ʷɛ', 'ʷɛ', 'ʷɛ', 'ʷɛ', 'ʷɛ', 'ʷɛ', 'ʷɛ', 'ʷɛ', 'ʷɛ', 'ʷa', 'ʷa', 'ʷa', 'ʷa', 'ʷa', 'ʷa', 'ʷă', 'ʷă', 'ʷă', 'ʷă', 'ʷă', 'ʷă', 'ʷɤ̆', 'ʷɤ̆', 'ʷɤ̆', 'ʷɤ̆', 'ʷɤ̆', 'ʷɤ̆', 'ʷɛ', 'ʷɛ', 'ʷɛ', 'ʷɛ', 'ʷɛ', 'ʷɛ', 'ʷe', 'ʷe', 'ʷe', 'ʷe', 'ʷe', 'ʷe', 'ʷɤ', 'ʷɤ', 'ʷɤ', 'ʷɤ', 'ʷɤ', 'ʷɤ', 'ʷi', 'ʷi', 'ʷi', 'ʷi', 'ʷi', 'ʷi', 'ʷiə', 'ʷiə', 'ʷiə', 'ʷiə', 'ʷiə', 'ʷiə', 'ʷiə', 'ʷiə', 'ʷiə', 'ʷiə', 'ʷiə', 'ʷiə', 'ʷiu', 'ʷiu', 'ʷiu', 'ʷiu', 'ʷiu', 'ʷiu', 'ʷiu', 'ʷiu', 'ʷiu', 'ʷiu', 'ʷiu', 'ʷen', 'ʷen', 'ʷen', 'ʷen', 'ʷen', 'ʷen', 'ʷet', 'ʷet', 'ʷet', 'ʷet', 'ʷet', 'ʷet']
 codas = ['p', 't', 'k', 'm', 'n', 'ŋ', 'ɲ', 'tʃ']
+onset = { u'tr' : u'ʈ' }
 
 custom_vowels = ['iu']
 custom_vowels2 = ['wɤ̆', 'wiu', 'wɤ', 'wă', 'wɛ', 'wa', 'we', 'wiə', 'wi']
@@ -37,15 +38,24 @@ def vi2IPA_en2vi(sentence, delimit):
    
     i = 0
     while i < len(phs):
+      
+      # Check 'tr'
+      if (i < len(phs) - 1) and ((phs[i]+phs[i+1]) in onset.keys()):
+        en_phoneme = phs[i]+phs[i+1]
+        phs[i] = onset[en_phoneme]
+        del phs[i+1]
+        i+=1
+        continue
       # Check 2 vowel
       if (i < len(phs) - 1) and ((phs[i]+phs[i+1]) in ['ɪə', 'ʊə', 'eə', 'eɪ', 'ɔɪ', 'aɪ', 'oʊ', 'aʊ']):
         en_phoneme = phs[i]+phs[i+1]
         phs[i], phs[i+1] = en_to_vi[en_phoneme]
         i+=2
-
+        # Delete codas
         while i < len(phs) and (phs[i] != '\'' and phs[i] != '.' and phs[i] != '1' and phs[i] != '5'):
           del phs[i]
         continue
+
       # Check 1 vowel
       if phs[i] in english_phoneme and phs[i] not in vi_union_en:
         phs[i] = en_to_vi[phs[i]][0]
