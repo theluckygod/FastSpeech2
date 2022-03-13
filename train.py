@@ -232,6 +232,7 @@ if __name__ == "__main__":
     if args.vocoder_path is not None:
         model_config["path"]["vocoder_path"]["custom"] = args.vocoder_path
         model_config["vocoder"]["model"] = "HiFi-GAN"
+        model_config["vocoder"]["speaker"] = "custom"
     configs = (preprocess_config, model_config, train_config)
 
     main(args, configs)

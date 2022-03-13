@@ -78,8 +78,11 @@ class Preprocessor:
                 tg_path = os.path.join(
                     self.out_dir, "TextGrid", speaker, "{}.TextGrid".format(basename)
                 )
+                
+                if not os.path.exists(tg_path):
+                    logging.warn(f"{tg_path} not found!!!")
+                    continue
 
-                assert os.path.exists(tg_path), f"{tg_path} not found!!!"
                 ret = self.process_utterance(speaker, basename)
                 if ret is None:
                     continue
