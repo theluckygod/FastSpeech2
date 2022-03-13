@@ -3,7 +3,7 @@ import argparse
 import yaml
 import os
 
-from preprocessor import ljspeech, aishell3, libritts, my_data, vlsp_2021
+from preprocessor import ljspeech, aishell3, libritts, vivos, vlsp_2021
 
 
 def main(config):
@@ -13,8 +13,8 @@ def main(config):
         aishell3.prepare_align(config)
     if "LibriTTS" in config["dataset"]:
         libritts.prepare_align(config)
-    if "my_data" in config["dataset"]:
-        my_data.prepare_align(config)
+    if "vivos" in config["dataset"]:
+        vivos.prepare_align(config)
     if "vlsp_2021" in config["dataset"]:
         vlsp_2021.prepare_align(config)
 
