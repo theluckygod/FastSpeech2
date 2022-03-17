@@ -3,7 +3,7 @@ import argparse
 import yaml
 import os
 
-from preprocessor import ljspeech, aishell3, libritts, vivos, vlsp_2021
+from preprocessor import ljspeech, aishell3, libritts, vivos, vlsp_2021, vispeech
 
 
 def main(config):
@@ -17,6 +17,8 @@ def main(config):
         vivos.prepare_align(config)
     if "vlsp_2021" in config["dataset"]:
         vlsp_2021.prepare_align(config)
+    if "vispeech" in config["dataset"]:
+        vispeech.prepare_align(config)
 
 
 if __name__ == "__main__":

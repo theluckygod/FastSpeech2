@@ -19,7 +19,7 @@ def process_wav(out_dir, speaker_dir, file_name, speaker, sampling_rate, max_wav
     wav = wav / max(abs(wav)) * max_wav_value
     try:
         wavfile.write(
-            os.path.join(out_dir, speaker, file_name),
+            os.path.join(out_dir, speaker, f"{file_name[:-4]}.wav"),
             sampling_rate,
             wav.astype(np.int16),
         )
@@ -35,12 +35,8 @@ def prepare_align(config):
 
     # prepare audio
     speaker_dirs = []
-    for set in os.listdir(in_dir):
-        set_path = os.path.join(in_dir, set)
-        if not os.path.isdir(set_path):
-            continue
-        for speaker in os.listdir(os.path.join(set_path, "waves")):
-            speaker_dirs.append(os.path.join(set_path, "waves", speaker))
+    for speaker in os.listdir(os.path.join(in_dir, "utterances")):
+        speaker_dirs.append(os.path.join(in_dir, "utterances", speaker))
 
     for speaker_dir in tqdm(speaker_dirs):
         jobs = []
@@ -51,20 +47,17 @@ def prepare_align(config):
         Parallel(n_jobs=6, verbose=1)(jobs)
 
     # prepare text
-    for set in os.listdir(in_dir):
-        set_path = os.path.join(in_dir, set)
-        if not os.path.isdir(set_path):
+    for file in os.listdir(in_dir):
+        if file[-4:] != ".txt":
             continue
-
-        text_path = os.path.join(set_path, "prompts.txt")
+        text_path = os.path.join(in_dir, file)
+        speaker = file[:-4]
         with open(text_path, encoding="utf8") as f:
             for text in f:
                 text = text.strip("\n")
-                file_name = text.split(" ")[0]
-                label = " ".join(text.split(" ")[1:])
+                file_name, label = text.split("|")
                 label = _clean_text(label, cleaners)
-
-                speaker = file_name.split("_")[0]
+                file_name = file_name[:-4]
                 if os.path.isfile(os.path.join(out_dir, speaker, f"{file_name}.wav")):
                     with open(os.path.join(out_dir, speaker, f"{file_name}.lab"), "w", encoding='utf-8') as f1:
                         f1.write(label)
