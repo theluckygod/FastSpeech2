@@ -11,7 +11,7 @@ custom_vowels = ['iu']
 custom_vowels2 = ['wɤ̆', 'wiu', 'wɤ', 'wă', 'wɛ', 'wa', 'we', 'wiə', 'wi']
 tones = ['1', '3', '6', '2', '5', '4']
 
-#vowels = vowels + custom_vowels + custom_vowels2
+vowels = vowels + custom_vowels + custom_vowels2
 
 def normalize_phs(phs_list):
     i = 0

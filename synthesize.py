@@ -216,7 +216,7 @@ if __name__ == "__main__":
     model = get_model(args, configs, device, train=False)
 
     # Load vocoder
-    vocoder = get_vocoder(model_config, device)
+    vocoder = get_vocoder(model_config, device, sr=preprocess_config["preprocessing"]["audio"]["sampling_rate"])
 
     # Preprocess texts
     if args.mode == "batch":

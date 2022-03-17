@@ -2,6 +2,7 @@ import os
 import random
 import json
 import logging
+import joblib
 
 import tgt
 import librosa
@@ -15,6 +16,8 @@ import audio as Audio
 
 
 class Preprocessor:
+    n_frames = 0
+
     def __init__(self, config):
         self.config = config
         self.in_dir = config["path"]["raw_path"]
@@ -51,6 +54,34 @@ class Preprocessor:
             config["preprocessing"]["mel"]["mel_fmax"],
         )
 
+    def _build_from_speaker(self, speaker, out, pitch_scaler, energy_scaler):
+        for wav_name in os.listdir(os.path.join(self.in_dir, speaker)):
+            if ".wav" not in wav_name:
+                continue
+
+            basename = wav_name.split(".")[0]
+            tg_path = os.path.join(
+                self.out_dir, "TextGrid", speaker, "{}.TextGrid".format(basename)
+            )
+            
+            if not os.path.exists(tg_path):
+                logging.warn(f"{tg_path} not found!!!")
+                continue
+
+            ret = self.process_utterance(speaker, basename)
+            if ret is None:
+                continue
+            else:
+                info, pitch, energy, n = ret
+            out.append(info)
+
+            if len(pitch) > 0:
+                pitch_scaler.partial_fit(pitch.reshape((-1, 1)))
+            if len(energy) > 0:
+                energy_scaler.partial_fit(energy.reshape((-1, 1)))
+
+            Preprocessor.n_frames += n
+
     def build_from_path(self):
         os.makedirs((os.path.join(self.out_dir, "mel")), exist_ok=True)
         os.makedirs((os.path.join(self.out_dir, "pitch")), exist_ok=True)
@@ -59,7 +90,7 @@ class Preprocessor:
 
         print("Processing Data ...")
         out = list()
-        n_frames = 0
+        Preprocessor.n_frames = 0
         pitch_scaler = StandardScaler()
         energy_scaler = StandardScaler()
 
@@ -67,35 +98,14 @@ class Preprocessor:
         logging.info("in_dir:", self.in_dir)
         logging.info("out_dir:", self.out_dir)
         
+        jobs = []
         speakers = {}
         for i, speaker in enumerate(tqdm(os.listdir(self.in_dir))):
             speakers[speaker] = i
-            for wav_name in os.listdir(os.path.join(self.in_dir, speaker)):
-                if ".wav" not in wav_name:
-                    continue
-
-                basename = wav_name.split(".")[0]
-                tg_path = os.path.join(
-                    self.out_dir, "TextGrid", speaker, "{}.TextGrid".format(basename)
-                )
-                
-                if not os.path.exists(tg_path):
-                    logging.warn(f"{tg_path} not found!!!")
-                    continue
-
-                ret = self.process_utterance(speaker, basename)
-                if ret is None:
-                    continue
-                else:
-                    info, pitch, energy, n = ret
-                out.append(info)
-
-                if len(pitch) > 0:
-                    pitch_scaler.partial_fit(pitch.reshape((-1, 1)))
-                if len(energy) > 0:
-                    energy_scaler.partial_fit(energy.reshape((-1, 1)))
-
-                n_frames += n
+            
+            jobs.append(joblib.delayed(self._build_from_speaker) \
+                (speaker, out, pitch_scaler, energy_scaler))
+        joblib.Parallel(n_jobs=6, verbose=1, prefer="threads")(jobs)
 
         print("Computing statistic quantities ...")
         # Perform normalization if necessary
@@ -143,10 +153,11 @@ class Preprocessor:
 
         print(
             "Total time: {} hours".format(
-                n_frames * self.hop_length / self.sampling_rate / 3600
+                Preprocessor.n_frames * self.hop_length / self.sampling_rate / 3600
             )
         )
 
+        sorted(out)
         random.seed(1234)
         random.shuffle(out)
         out = [r for r in out if r is not None]

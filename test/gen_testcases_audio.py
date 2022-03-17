@@ -13,6 +13,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 parser = argparse.ArgumentParser()
 args = parser.parse_args()
 # set args
+args.testcases = "test/vi_testcases.txt"
 args.lexicon = "lexicon/vlsp_2021-lexicon.txt"
 args.restore_step = 100000
 args.mode = "batch"
@@ -47,8 +48,8 @@ vocoder = get_vocoder(model_config, device, sr=preprocess_config["preprocessing"
 control_values = args.pitch_control, args.energy_control, args.duration_control
 
 
-with open(args.lexicon, "r", encoding="utf-8") as f:
-    texts = [line.strip("\n").split("\t")[0] + '.' for line in f.readlines()]
+with open(args.testcases, "r", encoding="utf-8") as f:
+    texts = [line.strip("\n") for line in f.readlines()]
 
 
 if __name__ == "__main__":

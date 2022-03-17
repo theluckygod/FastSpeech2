@@ -39,7 +39,7 @@ def get_param_num(model):
     return num_param
 
 
-def get_vocoder(config, device):
+def get_vocoder(config, device, sr=None):
     name = config["vocoder"]["model"]
     speaker = config["vocoder"]["speaker"]
 
@@ -58,6 +58,8 @@ def get_vocoder(config, device):
         vocoder_path=config["path"]["vocoder_path"][speaker]
         with open("hifigan/config.json", "r") as f:
             config = json.load(f)
+        if sr != None:
+            config["sampling_rate"] = sr
         config = hifigan.AttrDict(config)
         vocoder = hifigan.Generator(config)
         # if speaker == "LJSpeech":

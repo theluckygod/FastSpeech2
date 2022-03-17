@@ -1,6 +1,7 @@
 import argparse
 
 import yaml
+import time
 
 from preprocessor.preprocessor import Preprocessor
 
@@ -18,4 +19,6 @@ if __name__ == "__main__":
     if args.outdir is not None:
         config["path"]["preprocessed_path"] = args.outdir
     preprocessor = Preprocessor(config)
+    start_time = time.time()
     preprocessor.build_from_path()
+    print(f"Processing time: {time.time() - start_time}")
