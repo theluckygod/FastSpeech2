@@ -130,6 +130,8 @@ if __name__ == "__main__":
         train_config["path"]["ckpt_path"] = args.ckpt_path
     if args.result_path is not None:
         train_config["path"]["result_path"] = args.result_path
+    # batch_size must be 1
+    train_config["optimizer"]["batch_size"] = 1
     configs = (preprocess_config, model_config, train_config)
 
     main(args, configs)
