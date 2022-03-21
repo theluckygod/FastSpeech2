@@ -3,6 +3,7 @@ path:
   log_path: "../../fastspeech2_result/log/vlsp_2021"
   result_path: "../../fastspeech2_result/result/vlsp_2021"
 optimizer:
+  num_workers: 4
   batch_size: 64
   betas: [0.9, 0.98]
   eps: 0.000000001

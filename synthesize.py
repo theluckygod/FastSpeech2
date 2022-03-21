@@ -225,6 +225,7 @@ if __name__ == "__main__":
         batchs = DataLoader(
             dataset,
             batch_size=8,
+            num_workers=train_config["optimizer"]["num_workers"],
             collate_fn=dataset.collate_fn,
         )
     if args.mode == "single":

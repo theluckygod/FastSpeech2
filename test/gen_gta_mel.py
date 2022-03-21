@@ -66,6 +66,7 @@ def main(args, configs):
         dataset,
         batch_size=batch_size * group_size,
         shuffle=False,
+        num_workers=4,
         collate_fn=dataset.collate_fn,
     )
 
@@ -86,6 +87,7 @@ def main(args, configs):
         dataset,
         batch_size=batch_size,
         shuffle=False,
+        num_workers=train_config["optimizer"]["num_workers"],
         collate_fn=dataset.collate_fn,
     )
     gen_GTA_mel(model, dataloader, train_config["path"]["result_path"], id2speaker, dataset="val")

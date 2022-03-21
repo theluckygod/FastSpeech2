@@ -27,6 +27,7 @@ def evaluate(model, step, configs, logger=None, vocoder=None):
         dataset,
         batch_size=batch_size,
         shuffle=False,
+        num_workers=train_config["optimizer"]["num_workers"],
         collate_fn=dataset.collate_fn,
     )
 

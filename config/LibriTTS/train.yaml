@@ -3,6 +3,7 @@ path:
   log_path: "./output/log/LibriTTS"
   result_path: "./output/result/LibriTTS"
 optimizer:
+  num_workers: 4
   batch_size: 16
   betas: [0.9, 0.98]
   eps: 0.000000001

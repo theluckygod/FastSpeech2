@@ -35,6 +35,7 @@ def main(args, configs):
         dataset,
         batch_size=batch_size * group_size,
         shuffle=True,
+        num_workers=train_config["optimizer"]["num_workers"],
         collate_fn=dataset.collate_fn,
     )
 

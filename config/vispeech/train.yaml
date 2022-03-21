@@ -3,6 +3,7 @@ path:
   log_path: "./output/log/vispeech"
   result_path: "./output/result/vispeech"
 optimizer:
+  num_workers: 4
   batch_size: 64
   betas: [0.9, 0.98]
   eps: 0.000000001

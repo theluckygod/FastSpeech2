@@ -3,6 +3,7 @@ path:
   log_path: "./output/log/vivos"
   result_path: "./output/result/vivos"
 optimizer:
+  num_workers: 4
   batch_size: 64
   betas: [0.9, 0.98]
   eps: 0.000000001
