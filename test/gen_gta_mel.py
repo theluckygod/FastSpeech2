@@ -16,7 +16,7 @@ from dataset import Dataset
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def gen_GTA_mel(model, dataloader, res_path, dataset="train"):
+def gen_GTA_mel(model, dataloader, res_path, id2speaker, dataset="train"):
     print(f"Generating GTA mel for {dataset} set...")
 
     model.eval()
@@ -24,6 +24,8 @@ def gen_GTA_mel(model, dataloader, res_path, dataset="train"):
     count_mels = 0
     for batchs in dataloader:
         for batch in batchs:
+            spk = id2speaker[batch[2][0]]
+
             batch = to_device(batch, device)
 
             # Forward
@@ -37,7 +39,10 @@ def gen_GTA_mel(model, dataloader, res_path, dataset="train"):
                 continue
             
             if batch[6].shape == output[1].shape:
-                path = os.path.join(res_path, "gta_mel", batch[0][0] + ".npy")
+                spk_path = os.path.join(res_path, "gta_mel", spk)
+                if not os.path.isdir(spk_path):
+                    os.makedirs(spk_path)
+                path = os.path.join(spk_path, batch[0][0] + ".npy")
                 count_mels += 1
                 np.save(path, output[1].cpu().permute(0, 2, 1).detach().numpy())
     print("Count mels:", count_mels)
@@ -52,6 +57,7 @@ def main(args, configs):
     dataset = Dataset(
         "train.txt", preprocess_config, train_config, sort=True, drop_last=True
     )
+    id2speaker = dict((v, k) for k, v in dataset.speaker_map.items())
 
     batch_size = train_config["optimizer"]["batch_size"]
     group_size = 4  # Set this larger than 1 to enable sorting in Dataset
@@ -70,7 +76,7 @@ def main(args, configs):
     num_param = get_param_num(model)
     print("Number of FastSpeech2 Parameters:", num_param)
 
-    gen_GTA_mel(model, dataloader, train_config["path"]["result_path"], dataset="train")
+    gen_GTA_mel(model, dataloader, train_config["path"]["result_path"], id2speaker, dataset="train")
 
 
     dataset = Dataset(
@@ -82,7 +88,7 @@ def main(args, configs):
         shuffle=False,
         collate_fn=dataset.collate_fn,
     )
-    gen_GTA_mel(model, dataloader, train_config["path"]["result_path"], dataset="val")
+    gen_GTA_mel(model, dataloader, train_config["path"]["result_path"], id2speaker, dataset="val")
 
 
 

@@ -54,33 +54,32 @@ class Preprocessor:
             config["preprocessing"]["mel"]["mel_fmax"],
         )
 
-    def _build_from_speaker(self, speaker, out, pitch_scaler, energy_scaler):
-        for wav_name in os.listdir(os.path.join(self.in_dir, speaker)):
-            if ".wav" not in wav_name:
-                continue
+    def _process_speaker_helper(self, speaker, basename, out, pitch_scaler, energy_scaler):
+        ret = self.process_utterance(speaker, basename)
+        if ret is None:
+            return
+        else:
+            info, pitch, energy, n = ret
+        out.append(info)
 
-            basename = wav_name.split(".")[0]
-            tg_path = os.path.join(
-                self.out_dir, "TextGrid", speaker, "{}.TextGrid".format(basename)
-            )
-            
-            if not os.path.exists(tg_path):
-                logging.warn(f"{tg_path} not found!!!")
-                continue
+        if len(pitch) > 0:
+            pitch_scaler.partial_fit(pitch.reshape((-1, 1)))
+        if len(energy) > 0:
+            energy_scaler.partial_fit(energy.reshape((-1, 1)))
 
-            ret = self.process_utterance(speaker, basename)
-            if ret is None:
-                continue
-            else:
-                info, pitch, energy, n = ret
-            out.append(info)
+        Preprocessor.n_frames += n
 
-            if len(pitch) > 0:
-                pitch_scaler.partial_fit(pitch.reshape((-1, 1)))
-            if len(energy) > 0:
-                energy_scaler.partial_fit(energy.reshape((-1, 1)))
-
-            Preprocessor.n_frames += n
+    def change_sil_to_dur_sil(self, cur_dur, mean_dur):
+        if cur_dur < 1 * mean_dur:
+            return "sp_sh"
+        elif cur_dur < 2.5 * mean_dur :
+            return "sp"
+        elif cur_dur < 4 * mean_dur :
+            return "sp_lg"
+        elif cur_dur < 8 * mean_dur :
+            return "sp_vl"
+        else:
+            return "sil"
 
     def build_from_path(self):
         os.makedirs((os.path.join(self.out_dir, "mel")), exist_ok=True)
@@ -98,14 +97,27 @@ class Preprocessor:
         logging.info("in_dir:", self.in_dir)
         logging.info("out_dir:", self.out_dir)
         
-        jobs = []
         speakers = {}
         for i, speaker in enumerate(tqdm(os.listdir(self.in_dir))):
             speakers[speaker] = i
+            jobs = []
+
+            for wav_name in os.listdir(os.path.join(self.in_dir, speaker)):
+                if ".wav" not in wav_name:
+                    continue
+
+                basename = wav_name.split(".")[0]
+                tg_path = os.path.join(
+                    self.out_dir, "TextGrid", speaker, "{}.TextGrid".format(basename)
+                )
+                
+                if not os.path.exists(tg_path):
+                    logging.warn(f"{tg_path} not found!!!")
+                    continue
             
-            jobs.append(joblib.delayed(self._build_from_speaker) \
-                (speaker, out, pitch_scaler, energy_scaler))
-        joblib.Parallel(n_jobs=6, verbose=1, prefer="threads")(jobs)
+                jobs.append(joblib.delayed(self._process_speaker_helper) \
+                    (speaker, basename, out, pitch_scaler, energy_scaler))
+            joblib.Parallel(n_jobs=6, verbose=0, prefer="threads")(jobs)
 
         print("Computing statistic quantities ...")
         # Perform normalization if necessary
@@ -172,7 +184,7 @@ class Preprocessor:
 
         return out
 
-    def process_utterance(self, speaker, basename):
+    def process_utterance(self, speaker, basename, MEAN_DUR_THRESH=(5, 9)):
         wav_path = os.path.join(self.in_dir, speaker, "{}.wav".format(basename))
         text_path = os.path.join(self.in_dir, speaker, "{}.lab".format(basename))
         tg_path = os.path.join(
@@ -184,6 +196,23 @@ class Preprocessor:
         phone, duration, start, end = self.get_alignment(
             textgrid.get_tier_by_name("phones")
         )
+
+        dur_nosil = []
+        for idx, p in enumerate(phone):
+            if p not in ["sil", "sp", "spn"]:
+                dur_nosil.append(duration[idx])
+        if len(dur_nosil) > 0:
+            mean_dur = sum(dur_nosil) / len(dur_nosil)
+        else:
+            mean_dur = 0
+        if mean_dur < MEAN_DUR_THRESH[0] or mean_dur > MEAN_DUR_THRESH[1]:
+            logging.warning(f"Skip {wav_path}: mean duration not in MEAN_DUR_THRESH")
+            return None
+        
+        for idx, p in enumerate(phone):
+            if p in ["sil", "sp", "spn"]:
+                phone[idx] = self.change_sil_to_dur_sil(duration[idx], mean_dur)
+
         text = "{" + " ".join(phone) + "}"
         if start >= end:
             return None
