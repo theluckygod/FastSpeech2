@@ -67,6 +67,10 @@ def preprocess_vietnamese(text, preprocess_config):
     for w in words:
         if w.lower() in lexicon:
             phones += lexicon[w.lower()]
+        elif w in [',', ';']:
+            phones.append("sp")
+        elif w in ['.', '?', '!']:
+            phones.append("sp_lg")
         else:
             phones += list(filter(lambda p: p != "", g2p(w)))
     phones = "{" + "}{".join(phones) + "}"
